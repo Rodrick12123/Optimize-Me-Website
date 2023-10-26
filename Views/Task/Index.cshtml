@@ -1,0 +1,103 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    
+}
+
+@model IEnumerable<Optimizer.Models.Task>
+
+
+<div class="task-index-container">
+    <div class="row">
+        @*column for filters*@
+        <div class="col-md-2">
+            <form asp-action="Filter" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <select name="filter" class="form-select" 
+                    asp-items="@(new SelectList(ViewBag.Categories,"CategoryId", "Name",ViewBag.Filters.CategoryId))">
+                        <option value="all">All</option>
+                    </select>
+                    
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Due</label>
+                    <select name="filter" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.DueFilters,"Key", "Value",ViewBag.Filters.Due))">
+                        <option value="all">All</option>
+                    </select>
+
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="filter" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.Statuses,"StatusId", "Name",ViewBag.Filters.StatusId))">
+                        <option value="all">All</option>
+                    </select>
+
+                </div>
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a asp-action="Index" asp-route-id="" class="btn btn-primary">Clear</a>
+
+
+            </form>
+        </div>
+        @*column to contain table/task info*@
+        <div class="col-md-10">
+            <form asp-action="MarkComplete" method="post" asp-route-id="@ViewBag.Filters.Filter">
+                <table class="table table-borderd table-striped mt-2">
+                    <thead>
+                        <tr>
+                            
+                            @if(Model.ElementAt(0) != null){
+                                @foreach (string item in Model.ElementAt(0).ListOfAttributes)
+                                {
+                                    <th>@item</th>
+                                }
+                            }
+                            <th class="w-25"></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        @foreach (Optimizer.Models.Task task in Model)
+                        {
+                            string overdue = task.Overdue ? "bg-warning" : "";
+                            <tr>
+                                <td>@task.Description</td>
+                                <td>@task.Category.Name</td>
+                                <td class="@overdue">@task.DueDate?.ToShortDateString()</td>
+                                <td class="@overdue">@task.Status.Name</td>
+                                <td>
+                                    @if (task.StatusId == "open")
+                                    {
+                                        <button type="submit" class="btn btn-primary btn-sm"
+                                                name="@nameof(Optimizer.Models.Task.Id)" value="@task.Id">
+                                            Mark Completed
+                                        </button>
+
+                                    }
+                                </td>
+                                
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </form>
+            <form asp-action="DeleteComplete" method="post" asp-route-id="@ViewBag.Filters.Filter">
+                <a asp-action="Add" class="btn btn-primary">Add new task.</a>
+                <button type="submit" class="btn btn-primary">Delete completed tasks.</button>
+                
+            </form>
+            <form asp-action="Optimize" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Input Maximum Time</label>
+                    <input type="number" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">Optimize Those Task!</button>
+            </form>
+
+        </div>
+    </div>
+
+</div>

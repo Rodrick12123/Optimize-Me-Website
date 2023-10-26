@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Optimizer.Models;
+﻿using Optimizer.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace Optimizer.Controllers
