@@ -1,9 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using Newtonsoft.Json.Linq;
 using Optimizer.Models;
 using System.CodeDom;
 using System.Diagnostics;
+using System.Numerics;
+using System.Threading.Tasks;
+using static NuGet.Packaging.PackagingConstants;
 using Task = Optimizer.Models.Task;
 
 namespace Optimizer.Controllers
@@ -17,7 +26,7 @@ namespace Optimizer.Controllers
         //REMEMBER TO INCLUDE ASYNCRONOUS PROGRAMMING
         public TaskController(TaskContext contxt, ILogger<TaskController> logger)
         {
-            //_logger = logger;
+            
             context = contxt;
             _logger = logger;
         }
@@ -72,7 +81,7 @@ namespace Optimizer.Controllers
             //Execute query and order by DueDate
             //Consider having mutiple order options
             var tasks = query.OrderBy(t => t.DueDate).ToList();
-
+            
             return View(tasks);
         }
 
@@ -147,20 +156,134 @@ namespace Optimizer.Controllers
 
         }
 
-        
-        public IActionResult Optimize(string id, int? time = null)
+        [HttpPost]
+        public IActionResult Optimize(string id, int time = 0)
         {
             //Query Db table with task info 
-            //IQueryable<Task> query = context.Tasks
-            //    .Include(t => t.Status)
-            //    .Include(t => t.Category);
+            IQueryable<Task> query = context.Tasks
+                .Include(t => t.Status)
+                .Include(t => t.Category);
+            List<Task> currentTask = query.OrderBy(t => t.DueDate).ToList();
 
+            //filter the task with the appropriate ids
+            List<int> acceptableIds = OptimizerHelper(time, currentTask);
 
-            //DP for calculating optimized list of Task
-
+            var filteredItems = currentTask.Where(item => acceptableIds.Contains(item.Id)).ToList();
             //return the optimized tasks to view
-            return RedirectToAction("Index");
+            
+            return RedirectToAction("Index", filteredItems);
 
+        }
+
+
+        //Returns a list of task ids that offer the most value within the constraints of alloted time
+        public List<int> OptimizerHelper(int maxtime, List<Task> tasks, int value = 0, int maxvalue = 0, List<int> listOfId = null)
+        {
+            //base case
+
+            if (tasks.Count == 0 || maxtime <= 0 )
+            {
+                return [];
+            }
+
+            foreach (Task task in tasks)
+            {
+
+                if ((maxtime - task.Time) < 0)
+                {
+
+                    continue;
+                }
+                value = value + task.Value;
+                maxtime = maxtime - task.Time;
+                List<Task> tempList = tasks;
+                tempList.Remove(task);
+                
+                listOfId = OptimizerHelper(maxtime, tempList, value, maxvalue, listOfId);
+
+                if (maxvalue < value)
+                {
+                    maxvalue = value;
+                    int taskId = task.Id;
+                    listOfId.Add(taskId);
+                    return listOfId;
+                }
+            }
+
+            return listOfId;
+        }
+
+        //Include another filter function that allows optimizing based off of the due date
+        //and spending the least amount of time for the highest value
+
+        //function for testing the dp used for optimization algorithms
+        public string Test1(int maxtime, Dictionary<string, List<int>> tasksList, int value = 0, int maxvalue = 0, string beststring = "")
+        {
+            //base case
+            
+            if (tasksList.Count == 0 || maxtime <= 0)
+            {
+                return "";
+            }
+
+            foreach (string key in tasksList.Keys)
+            {
+                
+                if ((maxtime - tasksList[key][1]) < 0)
+                {
+                    
+                    continue;
+                }
+                value = value + tasksList[key][0];
+                maxtime = maxtime - tasksList[key][1];
+                Dictionary<string, List<int>> tempList = tasksList;
+                tempList.Remove(key);
+                beststring = Test1(maxtime, tempList, value, maxvalue, beststring);
+
+                if (maxvalue < value)
+                {
+                    maxvalue = value;
+                    return beststring += key;
+                }
+            }
+
+            return beststring;
+        }
+
+        public List<int> Test2(int maxtime, List<Task> tasks, int value = 0, int maxvalue = 0, List<int> listOfId = null)
+        {
+            //base case
+
+            if (tasks.Count == 0 || maxtime <= 0)
+            {
+                return [];
+            }
+
+            foreach (Task task in tasks)
+            {
+
+                if ((maxtime - task.Time) < 0)
+                {
+
+                    continue;
+                }
+                value = value + task.Value;
+                maxtime = maxtime - task.Time;
+                List<Task> tempList = tasks;
+                tempList.Remove(task);
+
+                listOfId = OptimizerHelper(maxtime, tempList, value, maxvalue, listOfId);
+
+                if (maxvalue < value)
+                {
+                    maxvalue = value;
+                    int taskId = task.Id;
+                    listOfId.Add(taskId);
+                    return listOfId;
+                }
+            }
+
+            return listOfId;
         }
 
 

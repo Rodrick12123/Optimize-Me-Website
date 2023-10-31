@@ -48,12 +48,15 @@
                     <thead>
                         <tr>
                             
-                            @if(Model.ElementAt(0) != null){
-                                @foreach (string item in Model.ElementAt(0).ListOfAttributes)
-                                {
-                                    <th>@item</th>
-                                }
-                            }
+                            
+                            
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Due Date</th>
+                            <th>Status Name</th>
+                            <th>Estimated Completion Time</th>
+                            <th>Relative Value</th>
+
                             <th class="w-25"></th>
                            
                         </tr>
@@ -68,6 +71,8 @@
                                 <td>@task.Category.Name</td>
                                 <td class="@overdue">@task.DueDate?.ToShortDateString()</td>
                                 <td class="@overdue">@task.Status.Name</td>
+                                <td>@task.Time</td>
+                                <td >@task.Value</td>
                                 <td>
                                     @if (task.StatusId == "open")
                                     {
@@ -89,12 +94,12 @@
                 <button type="submit" class="btn btn-primary">Delete completed tasks.</button>
                 
             </form>
-            <form asp-action="Optimize" method="post">
+            <form asp-action="Optimize" method="post" asp-route-id="@ViewBag.Filters.Filter">
                 <div class="mb-3">
                     <label class="form-label">Input Maximum Time</label>
-                    <input type="number" class="form-control" />
+                    <input type="number" name="time" class="form-control" />
                 </div>
-                <button type="submit" class="btn btn-primary">Optimize Those Task!</button>
+                <button type="submit"  class="btn btn-primary">Optimize Those Task!</button>
             </form>
 
         </div>
