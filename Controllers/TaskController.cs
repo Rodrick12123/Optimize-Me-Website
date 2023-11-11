@@ -208,9 +208,10 @@ namespace Optimizer.Controllers
             //Execute query and order by DueDate
             //Consider having mutiple order options
             var currentTask = query.OrderBy(t => t.DueDate).ToList();
-           
+
+            Dictionary<string, List<Task>> memo = new Dictionary<string, List<Task>>();
             //filter the task with the appropriate ids
-            List<Task> acceptableTasks = OptimizerHelper(time, currentTask, currentTask.Count);
+            List<Task> acceptableTasks = OptimizerHelper(time, currentTask, memo, currentTask.Count, "");
             
             
             //return the optimized tasks to optimize view
@@ -278,7 +279,7 @@ namespace Optimizer.Controllers
         //Helper function for the optimize function
         //returns a list of task where the total amount of time < maxtime and
         //Contains the largest value out of all valid combinations within maxtime
-        public List<Task> OptimizerHelper(int maxtime, List<Task> tasks, int index = 0, string s = "", Dictionary<string, List<Task>>? memo = null)
+        public List<Task> OptimizerHelper(int maxtime, List<Task> tasks, Dictionary<string, List<Task>> memo , int index = 0, string s = "")
         {
             //base case
             if (index == 0 || maxtime == 0)
@@ -286,23 +287,19 @@ namespace Optimizer.Controllers
                 return [];
             }
             //Memoization
-            if (memo != null)
+            if (memo.ContainsKey(s))
             {
-                if (memo.ContainsKey(s))
-                {
-                    return memo[s];
-                }
-                
+                return memo[s];
             }
             //skip condition
             if (tasks[index - 1].Time > maxtime)
             {
-                return OptimizerHelper(maxtime, tasks, index - 1);
+                return OptimizerHelper(maxtime, tasks, memo, index - 1);
             }
             
             //recursive calls
-            List<Task> excludeTasks = OptimizerHelper(maxtime, tasks, index - 1, s, memo);
-            List<Task> includeTasks = OptimizerHelper(maxtime - tasks[index - 1].Time, tasks, index - 1, s, memo);
+            List<Task> excludeTasks = OptimizerHelper(maxtime, tasks, memo, index - 1, s);
+            List<Task> includeTasks = OptimizerHelper(maxtime - tasks[index - 1].Time, tasks, memo, index - 1, s);
             //add Task to the lists
             includeTasks.Add(tasks[index - 1]);
             
