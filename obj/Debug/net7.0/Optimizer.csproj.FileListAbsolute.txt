@@ -278,3 +278,5 @@ C:\Users\rodri\Optimizer\obj\Debug\net7.0\Optimizer.pdb
 C:\Users\rodri\Optimizer\obj\Debug\net7.0\Optimizer.genruntimeconfig.cache
 C:\Users\rodri\Optimizer\bin\Debug\net7.0\Optimizer.pdb
 C:\Users\rodri\Optimizer\obj\Debug\net7.0\ref\Optimizer.dll
+C:\Users\rodri\Optimizer\obj\Debug\net7.0\Optimizer.Properties.Resources.resources
+C:\Users\rodri\Optimizer\obj\Debug\net7.0\Optimizer.csproj.GenerateResource.cache

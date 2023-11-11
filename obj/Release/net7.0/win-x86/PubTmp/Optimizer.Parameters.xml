@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="IIS Web Application Name" description="" value="OptimizeMe" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^C:\\Users\\rodri\\Optimizer\\obj\\Release\\net7\.0\\win-x86\\PubTmp\\Out\\$" />
+  </parameter>
+  <parameter name="Optimizer.Data.ApplicationDbContext" description="" value="Data Source=optimizerdbserver.database.windows.net,1433;Initial Catalog=Optimizer_db;User ID=rodrickVlankford;Password=Lankford1!" tags="dbfullsql">
+    <parameterEntry kind="ProviderPath" scope="dbfullsql" match="^C:\\Users\\rodri\\Optimizer\\obj\\Release\\net7\.0\\win-x86\\PubTmp\\EFSQLScripts\\Optimizer\.Data\.ApplicationDbContext\.sql$" />
+  </parameter>
+  <parameter name="Optimizer.Models.TaskContext" description="" value="Data Source=optimizerdbserver.database.windows.net,1433;Initial Catalog=Optimizer_db;User ID=rodrickVlankford;Password=Lankford1!" tags="dbfullsql">
+    <parameterEntry kind="ProviderPath" scope="dbfullsql" match="^C:\\Users\\rodri\\Optimizer\\obj\\Release\\net7\.0\\win-x86\\PubTmp\\EFSQLScripts\\Optimizer\.Models\.TaskContext\.sql$" />
+  </parameter>
+</parameters>

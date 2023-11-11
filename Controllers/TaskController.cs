@@ -13,6 +13,7 @@ using Optimizer.Models;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using static NuGet.Packaging.PackagingConstants;
@@ -24,14 +25,13 @@ namespace Optimizer.Controllers
     {
         private TaskContext context;
 
-        private readonly ILogger<TaskController> _logger;
 
         //REMEMBER TO INCLUDE ASYNCRONOUS PROGRAMMING
-        public TaskController(TaskContext contxt, ILogger<TaskController> logger)
+        public TaskController(TaskContext contxt)
         {
             
             context = contxt;
-            _logger = logger;
+            
         }
 
         public IActionResult Index(string id, int? time = null)
@@ -278,28 +278,48 @@ namespace Optimizer.Controllers
         //Helper function for the optimize function
         //returns a list of task where the total amount of time < maxtime and
         //Contains the largest value out of all valid combinations within maxtime
-        public List<Task> OptimizerHelper(int maxtime, List<Task> tasks, int index = 0)
+        public List<Task> OptimizerHelper(int maxtime, List<Task> tasks, int index = 0, string s = "", Dictionary<string, List<Task>>? memo = null)
         {
             //base case
             if (index == 0 || maxtime == 0)
             {
                 return [];
             }
+            //Memoization
+            if (memo != null)
+            {
+                if (memo.ContainsKey(s))
+                {
+                    return memo[s];
+                }
+                
+            }
             //skip condition
             if (tasks[index - 1].Time > maxtime)
             {
                 return OptimizerHelper(maxtime, tasks, index - 1);
             }
+            
             //recursive calls
-            List<Task> excludeTasks = OptimizerHelper(maxtime, tasks, index - 1);
-            List<Task> includeTasks = OptimizerHelper(maxtime - tasks[index - 1].Time, tasks, index - 1);
+            List<Task> excludeTasks = OptimizerHelper(maxtime, tasks, index - 1, s, memo);
+            List<Task> includeTasks = OptimizerHelper(maxtime - tasks[index - 1].Time, tasks, index - 1, s, memo);
             //add Task to the lists
             includeTasks.Add(tasks[index - 1]);
+            
             //sum up all of the values within both lists
             int excludeTotal = excludeTasks.Sum(item => item.Value);
             int includeTotal = includeTasks.Sum(item => item.Value);
             //choose which list choices results in the highest total value
-            return includeTotal > excludeTotal ? includeTasks : excludeTasks;
+            if(includeTotal > excludeTotal)
+            {
+                s += tasks[index - 1].Id;
+                memo[s] = includeTasks;
+            }
+            else
+            {
+                memo[s] = excludeTasks;
+            }
+            return memo[s];
         }
 
 
@@ -309,11 +329,7 @@ namespace Optimizer.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        
     }
 }
 
