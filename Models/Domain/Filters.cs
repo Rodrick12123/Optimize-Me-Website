@@ -1,4 +1,4 @@
-﻿namespace Optimizer.Models
+﻿namespace Optimizer.Models.Domain
 {
     //Class for sorting and filtering data
     public class Filters
@@ -18,12 +18,12 @@
         public bool HasStatus => StatusId.ToLower() != "all";
         public bool HasMaxTime => MaxTime != null;
 
-        public Filters(string filter, int? maxtime = null )
+        public Filters(string filter, int? maxtime = null)
         {
 
 
             Filter = filter ?? "all-all-all";
-            String[] filters = Filter.Split("-");
+            string[] filters = Filter.Split("-");
 
             CategoryId = filters[0];
             Due = filters[1];
@@ -38,7 +38,7 @@
 
         }
 
-        
+
         public static Dictionary<string, string> DueFilterValues =>
             new Dictionary<string, string>
             {

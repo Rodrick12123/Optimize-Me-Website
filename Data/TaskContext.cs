@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Optimizer.Models.Domain;
 using System.Reflection.Emit;
+using Task = Optimizer.Models.Domain.Task;
 
-namespace Optimizer.Models
+namespace Optimizer.Data
 {
     public class TaskContext : DbContext
     {

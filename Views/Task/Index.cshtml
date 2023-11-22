@@ -3,7 +3,7 @@
     
 }
 
-@model IEnumerable<Optimizer.Models.Task>
+@model IEnumerable<Optimizer.Models.Domain.Task>
 
 
 <div class="task-index-container">
@@ -63,7 +63,7 @@
                     </thead>
                     <tbody>
                         
-                        @foreach (Optimizer.Models.Task task in Model)
+                        @foreach (Optimizer.Models.Domain.Task task in Model)
                         {
                             string overdue = task.Overdue ? "bg-warning" : "";
                             <tr>
@@ -77,7 +77,7 @@
                                     @if (task.StatusId == "open")
                                     {
                                         <button type="submit" class="btn btn-primary btn-sm"
-                                                name="@nameof(Optimizer.Models.Task.Id)" value="@task.Id">
+                                                name="@nameof(Optimizer.Models.Domain.Task.Id)" value="@task.Id">
                                             Mark Completed
                                         </button>
 

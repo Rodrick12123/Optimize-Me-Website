@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Optimizer.Models
+namespace Optimizer.Models.Domain
 {
     public class Task
     {
         public int Id { get; set; }
 
-        public List<string> ListOfAttributes { get;} = ["Description", "Category", "Due Date", "Status"];
+        public List<string> ListOfAttributes { get; } = ["Description", "Category", "Due Date", "Status"];
 
         [Required(ErrorMessage = "Please enter a description for your task.")]
         public string Description { get; set; } = string.Empty;
@@ -33,6 +33,6 @@ namespace Optimizer.Models
 
         public bool Overdue => StatusId == "open" && DueDate < DateTime.Today;
 
-
+        public string UserId { get; set; }
     }
 }

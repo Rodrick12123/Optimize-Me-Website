@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,7 +11,9 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Newtonsoft.Json.Linq;
 using NuGet.Packaging;
-using Optimizer.Models;
+using Optimizer.Data;
+using Optimizer.Models.Domain;
+using Optimizer.Repositories.Interfaces;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,24 +21,33 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using static NuGet.Packaging.PackagingConstants;
-using Task = Optimizer.Models.Task;
+using Task = Optimizer.Models.Domain.Task;
 
 namespace Optimizer.Controllers
 {
+    [Authorize(Roles = "User")]
     public class TaskController : Controller
     {
-        private TaskContext context;
 
+        private readonly ITaskRepository taskRepository;
+        private readonly ITaskCategoryRepository categoryRepo;
+        private readonly ITaskStatusesRepository statusRepo;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly SignInManager<IdentityUser> loginManager;
 
         //REMEMBER TO INCLUDE ASYNCRONOUS PROGRAMMING
-        public TaskController(TaskContext contxt)
+        public TaskController(ITaskRepository taskRepository,SignInManager<IdentityUser> loginManager, ITaskCategoryRepository categoryRepo,
+            ITaskStatusesRepository statusRepo, UserManager<IdentityUser> userManager)
         {
-            
-            context = contxt;
-            
+
+            this.loginManager = loginManager;
+            this.taskRepository = taskRepository;
+            this.categoryRepo = categoryRepo;
+            this.statusRepo = statusRepo;
+            this.userManager = userManager;
         }
 
-        public IActionResult Index(string id, int? time = null)
+        public async Task<IActionResult> Index(string id, int? time = null)
         {
             //Set new filter object with filters represented by strings
             //Include the MaxTime parameter
@@ -42,58 +55,35 @@ namespace Optimizer.Controllers
 
             //add elements to view bag
             ViewBag.Filters = filters;
-            ViewBag.Categories = context.Categories.ToList();
+            ViewBag.Categories = await categoryRepo.GetAllCategoriesAsync();
             ViewBag.DueFilters = Filters.DueFilterValues;
-            ViewBag.Statuses = context.Statuses.ToList();
+            ViewBag.Statuses = await statusRepo.GetAllStatuesAsync();
 
-            //Query Db table with task info 
-            IQueryable<Task> query = context.Tasks
-                .Include(t => t.Status)
-                .Include(t => t.Category);
-
-            //Check for filter values
-            //Then update queries with WHERE 
-
-            if (filters.HasCategory)
+            //Fetches only the task a user has created
+            if (loginManager.IsSignedIn(User))
             {
-                query = query.Where(t => t.CategoryId == filters.CategoryId);
-            }
-            if (filters.HasDue)
-            {
-                var currentDate = DateTime.Today;
-                if (filters.IsFuture)
-                {
-                    query = query.Where(t => t.DueDate > currentDate);
-                }
+                var userTaskQuery = taskRepository.GetAllUserTask(userManager.GetUserId(User));
+                var query = taskRepository.GetAllFilteredTask(filters, userTaskQuery);
 
-                else if (filters.IsPast)
-                {
-                    query = query.Where(t => t.DueDate < currentDate);
-                }
-                else if (filters.IsToday)
-                {
-                    query = query.Where(t => t.DueDate == currentDate);
-                }
-            }
-            if (filters.HasStatus)
-            {
-                query = query.Where(t => t.StatusId == filters.StatusId);
-            }
-            //MaxTime filter here
+                //Execute query and order by DueDate
+                //Consider having mutiple order options
+                var tasks = await taskRepository.OrderTaskByDueDate(query);
 
-            //Execute query and order by DueDate
-            //Consider having mutiple order options
-            var tasks = query.OrderBy(t => t.DueDate).ToList();
+                return View(tasks);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
             
-            return View(tasks);
         }
 
         //Get method for adding information
         [HttpGet]
-        public IActionResult Add()
+        public async Task<IActionResult> Add()
         {
-            ViewBag.Categories = context.Categories.ToList();
-            ViewBag.Statuses = context.Statuses.ToList();
+            ViewBag.Categories = await categoryRepo.GetAllCategoriesAsync();
+            ViewBag.Statuses = await statusRepo.GetAllStatuesAsync();
             var task = new Task { StatusId = "open" };
             return View(task);
 
@@ -101,21 +91,24 @@ namespace Optimizer.Controllers
 
         //Post method for adding information
         [HttpPost]
-        public IActionResult Add(Task task)
+        public async Task<IActionResult> Add(Task task)
         {
             //Check for valid inputs and adds task to the database
             //then saves the database change
             //If the input is invalid return the current view and reload bag
             if (ModelState.IsValid)
             {
-                context.Tasks.Add(task);
-                context.SaveChanges();
+                if (loginManager.IsSignedIn(User))
+                {
+                    task.UserId = userManager.GetUserId(User);
+                }
+                await taskRepository.AddAsync(task);
                 return RedirectToAction("Index");
             }
             else
             {
-                ViewBag.Categories = context.Categories.ToList();
-                ViewBag.Statuses = context.Statuses.ToList();
+                ViewBag.Categories = await categoryRepo.GetAllCategoriesAsync();
+                ViewBag.Statuses = await statusRepo.GetAllStatuesAsync();
                 return View(task);
             }
         }
@@ -130,14 +123,13 @@ namespace Optimizer.Controllers
 
         //Changes the StatusId of the task within the database to closed
         [HttpPost]
-        public IActionResult MarkComplete([FromRoute] string id, Task task)
+        public async Task<IActionResult> MarkComplete([FromRoute] string id, Task task)
         {
-            task = context.Tasks.Find(task.Id);
+            task = await taskRepository.GetAsync(task.Id);
 
             if (task != null)
             {
-                task.StatusId = "closed";
-                context.SaveChanges();
+                await taskRepository.CloseAsync(task);
             }
             return RedirectToAction("Index", new { ID = id });
 
@@ -145,79 +137,46 @@ namespace Optimizer.Controllers
 
         //Delete all of the completed task
         [HttpPost]
-        public IActionResult DeleteComplete(string id)
+        public async Task<IActionResult> DeleteComplete(string id)
         {
             //query that holds all of the completed task
-            var deleteTask = context.Tasks.Where(t => t.StatusId == "closed").ToList();
+            var deleteTask = await taskRepository.DeleteCompleteAsync();
 
-            foreach (var task in deleteTask)
-            {
-                context.Tasks.Remove(task);
-            }
-            context.SaveChanges();
+            
             return RedirectToAction("Index", new { ID = id });
 
         }
 
         [HttpPost]
-        public IActionResult Optimize(string id, int time = 0)
+        public async Task<IActionResult> Optimize(string id, int time = 0)
         {
             var filters = new Filters(id);
 
             //add elements to view bag
             ViewBag.Filters = filters;
-            ViewBag.Categories = context.Categories.ToList();
+            ViewBag.Categories = await categoryRepo.GetAllCategoriesAsync();
             ViewBag.DueFilters = Filters.DueFilterValues;
-            ViewBag.Statuses = context.Statuses.ToList();
+            ViewBag.Statuses = await statusRepo.GetAllStatuesAsync();
 
-            //Query Db table with task info 
-            IQueryable<Task> query = context.Tasks
-                .Include(t => t.Status)
-                .Include(t => t.Category);
-
-            //Check for filter values
-            //Then update queries with WHERE 
-
-            if (filters.HasCategory)
+            if (loginManager.IsSignedIn(User))
             {
-                query = query.Where(t => t.CategoryId == filters.CategoryId);
+                var userTaskQuery = taskRepository.GetAllUserTask(userManager.GetUserId(User));
+                var query = taskRepository.GetAllFilteredTask(filters, userTaskQuery);
+
+                //Execute query and order by DueDate
+                //Consider having mutiple order options
+                var currentTask = await taskRepository.OrderTaskByDueDate(query);
+
+                List<Task> acceptableTasks = OptimizerHelper(time, (List<Task>)currentTask);
+
+                //return the optimized tasks to optimize view
+
+                return View(acceptableTasks);
             }
-            if (filters.HasDue)
+            else
             {
-                var currentDate = DateTime.Today;
-                if (filters.IsFuture)
-                {
-                    query = query.Where(t => t.DueDate > currentDate);
-                }
-
-                else if (filters.IsPast)
-                {
-                    query = query.Where(t => t.DueDate < currentDate);
-                }
-                else if (filters.IsToday)
-                {
-                    query = query.Where(t => t.DueDate == currentDate);
-                }
+                return RedirectToAction("Index", "Home");
             }
-            if (filters.HasStatus)
-            {
-                query = query.Where(t => t.StatusId == filters.StatusId);
-            }
-            //MaxTime filter here
-
-            //Execute query and order by DueDate
-            //Consider having mutiple order options
-            var currentTask = query.OrderBy(t => t.DueDate).ToList();
-
-            Dictionary<string, List<Task>> memo = new Dictionary<string, List<Task>>();
-            //filter the task with the appropriate ids
-            List<Task> acceptableTasks = OptimizerHelper(time, currentTask, memo, currentTask.Count, "");
-            
-            
-            //return the optimized tasks to optimize view
-            
-            return View(acceptableTasks);
-
         }
 
 
@@ -279,7 +238,8 @@ namespace Optimizer.Controllers
         //Helper function for the optimize function
         //returns a list of task where the total amount of time < maxtime and
         //Contains the largest value out of all valid combinations within maxtime
-        public List<Task> OptimizerHelper(int maxtime, List<Task> tasks, Dictionary<string, List<Task>> memo , int index = 0, string s = "")
+
+        public List<Task> Helper(int maxtime, List<Task> tasks, Dictionary<string, List<Task>> memo , int index = 0, string s = "")
         {
             //base case
             if (index == 0 || maxtime == 0)
@@ -294,12 +254,12 @@ namespace Optimizer.Controllers
             //skip condition
             if (tasks[index - 1].Time > maxtime)
             {
-                return OptimizerHelper(maxtime, tasks, memo, index - 1);
+                return Helper(maxtime, tasks, memo, index - 1);
             }
             
             //recursive calls
-            List<Task> excludeTasks = OptimizerHelper(maxtime, tasks, memo, index - 1, s);
-            List<Task> includeTasks = OptimizerHelper(maxtime - tasks[index - 1].Time, tasks, memo, index - 1, s);
+            List<Task> excludeTasks = Helper(maxtime, tasks, memo, index - 1, s);
+            List<Task> includeTasks = Helper(maxtime - tasks[index - 1].Time, tasks, memo, index - 1, s);
             //add Task to the lists
             includeTasks.Add(tasks[index - 1]);
             
@@ -318,8 +278,46 @@ namespace Optimizer.Controllers
             }
             return memo[s];
         }
+        //ToDo: Implement 0/1 Knapsack helper function 
+        public List<Task> OptimizerHelper(int maxtime, List<Task> tasks)
+        {
+            //Initialize DP list
+            List<List<int>> dp = new List<List<int>>(tasks.Count+1);
+            for(int i = 1;i< tasks.Count + 1; i++)
+            {
+                dp.Add(new List<int>(maxtime + 1));
+            }
 
+            for(int i = 1; i<= tasks.Count; i++)
+            {
+                int value = tasks[i].Value;
+                int cost = tasks[i].Time;
+                for(int j = 1; j<= maxtime; j++)
+                {
+                    dp[i][j] = dp[i - 1][j];
+                    if(j >= cost && dp[i - 1][j-cost] + value > dp[i][j])
+                    {
+                        dp[i][j] = dp[i - 1][j - cost] + value;
+                    }
+                }
 
+            }
+
+            //Find the task that where chosen 
+            List<Task> selectedTasks = new List<Task>();
+            int limit = maxtime;
+            for(int i = tasks.Count; i>0; i--)
+            {
+                if (dp[i][limit] != dp[i - 1][limit])
+                {
+                    
+                    selectedTasks.Add(tasks[i-1]);
+                    limit -= tasks[i - 1].Time;
+                }
+            }
+            
+            return selectedTasks;
+        }
 
         public IActionResult Privacy()
         {

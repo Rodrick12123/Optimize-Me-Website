@@ -1,4 +1,4 @@
-﻿namespace Optimizer.Models
+﻿namespace Optimizer.Models.Domain
 {
     public class Category
     {

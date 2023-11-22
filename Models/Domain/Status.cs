@@ -1,4 +1,4 @@
-﻿namespace Optimizer.Models
+﻿namespace Optimizer.Models.Domain
 {
     //Determine if task is completed
     public class Status

@@ -1,4 +1,4 @@
-﻿namespace Optimizer.Models
+﻿namespace Optimizer.Models.Domain
 {
     public class Tasks
     {
@@ -8,7 +8,7 @@
 
         public int TotalTaskTime { get; set; }
 
-        public int MaxTime { get; set; } 
+        public int MaxTime { get; set; }
 
         public bool OverTimeLimit => TotalTaskTime > MaxTime;
 

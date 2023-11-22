@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Optimizer.Models;
+using Optimizer.Data;
 
 #nullable disable
 
-namespace Optimizer.Migrations
+namespace Optimizer.Migrations.Task
 {
     [DbContext(typeof(TaskContext))]
-    partial class TaskContextModelSnapshot : ModelSnapshot
+    [Migration("20231121203433_initialTaskDb")]
+    partial class initialTaskDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace Optimizer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Optimizer.Models.Category", b =>
+            modelBuilder.Entity("Optimizer.Models.Domain.Category", b =>
                 {
                     b.Property<string>("CategoryId")
                         .HasColumnType("nvarchar(450)");
@@ -63,7 +66,7 @@ namespace Optimizer.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Optimizer.Models.Status", b =>
+            modelBuilder.Entity("Optimizer.Models.Domain.Status", b =>
                 {
                     b.Property<string>("StatusId")
                         .HasColumnType("nvarchar(450)");
@@ -89,7 +92,7 @@ namespace Optimizer.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Optimizer.Models.Task", b =>
+            modelBuilder.Entity("Optimizer.Models.Domain.Task", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,15 +131,15 @@ namespace Optimizer.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("Optimizer.Models.Task", b =>
+            modelBuilder.Entity("Optimizer.Models.Domain.Task", b =>
                 {
-                    b.HasOne("Optimizer.Models.Category", "Category")
+                    b.HasOne("Optimizer.Models.Domain.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Optimizer.Models.Status", "Status")
+                    b.HasOne("Optimizer.Models.Domain.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
