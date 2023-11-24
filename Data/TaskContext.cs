@@ -31,6 +31,8 @@ namespace Optimizer.Data
                     new Status { StatusId ="closed", Name="Completed"}
                 );
 
+            
+
         }
     }
 }

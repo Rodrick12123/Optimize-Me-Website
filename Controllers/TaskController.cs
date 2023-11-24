@@ -25,7 +25,7 @@ using Task = Optimizer.Models.Domain.Task;
 
 namespace Optimizer.Controllers
 {
-    [Authorize(Roles = "User")]
+    [Authorize]
     public class TaskController : Controller
     {
 

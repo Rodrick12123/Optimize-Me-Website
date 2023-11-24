@@ -33,6 +33,9 @@ namespace Optimizer.Models.Domain
 
         public bool Overdue => StatusId == "open" && DueDate < DateTime.Today;
 
+        //Foreign Key to UserId
+        [ValidateNever]
         public string UserId { get; set; }
+        
     }
 }

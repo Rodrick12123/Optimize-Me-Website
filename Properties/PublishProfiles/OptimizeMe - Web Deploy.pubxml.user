@@ -6,21 +6,12 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project>
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAidqtU+JdKE6BPRU4kRWOFQAAAAACAAAAAAAQZgAAAAEAACAAAAB8m5tpDcR82OzL2K7G0fr4d/KUFJgPw/oKKyZAHE7fKwAAAAAOgAAAAAIAACAAAACpdFxqKIliM+AHWcSY3+OBdrgzGB9wPecgDsuxwmBel4AAAABG0TD4GVGhg/YgWPQoz4Lb4FTvf1acFPdzo+mBlrLSfpjY1pZJlyKdk3NwgBLVk5sr39bh1cVsIZJomEYYON7bf6BCMp/QQyDAgFhxZbTP6xV6u67+scHcZyuUBiaON3a9L4T4GtMr88MjiyIigiipnoEGYd4MUUQLaN9Y7k6oLUAAAAD0HVPGvmxLCk/Lpsph83Xmf9vnqEMElsFqvIS8wKcdJzuFKISYESA2+9jfKT4iw9vhTAGVyuq+GhgZnIxaKD8X</EncryptedPassword>
-    <History>True|2023-11-21T00:58:38.4888020Z;True|2023-11-01T06:22:33.9948211-05:00;True|2023-11-01T06:11:58.0414370-05:00;True|2023-11-01T05:01:46.1550274-05:00;True|2023-11-01T03:51:16.0580702-05:00;True|2023-11-01T02:59:07.5391229-05:00;</History>
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAvjGQoFlYw0Gz0qK3xu8c7QAAAAACAAAAAAAQZgAAAAEAACAAAAC0IMx39eqlZg90t4ZZLQAZyaqxutqOHPZ/1X2jmOUYxgAAAAAOgAAAAAIAACAAAAAStczIjTrIF21tdmAKEnQTz3nU6+CGhA7AjMEJj0Wv0YAAAABLk5EAYzDdLI7FuKLopGTcOvuF+V/u153vw2O96x0bpvDieIZROrkFhjtEaIKx2lydt6NhjNA9s0E1+g4wckktKIZAvzR3AnoMTI9EYjshN/GiLZ2Zx4rwRXRsyQj0Zv3RjTwo/du3ACvZikB6TcAgBbWLkVNufocI8IIgmGK2B0AAAACN/QpeP9shV0URvJ9wcNFzmkSBv0otNIkf74PNnBiHKQstb+11FgcgjF3nNZ0ThcsvE0RnTJ4NLpM9VeQpoGgT</EncryptedPassword>
+    <History>True|2023-11-24T11:20:09.0300428Z;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
-    <DestinationConnectionStrings Include="DefaultConnection">
-      <Value>Data Source=optimizerdbserver.database.windows.net,1433%3bInitial Catalog=Optimizer_db%3bUser ID=rodrickVlankford%3bPassword=Lankford1!</Value>
-    </DestinationConnectionStrings>
-  </ItemGroup>
-  <ItemGroup>
-    <EFMigrations Include="Optimizer.Data.ApplicationDbContext">
-      <Value>Data Source=optimizerdbserver.database.windows.net,1433%3bInitial Catalog=Optimizer_db%3bUser ID=rodrickVlankford%3bPassword=Lankford1!</Value>
-    </EFMigrations>
-    <EFMigrations Include="Optimizer.Models.TaskContext">
-      <Value>Data Source=optimizerdbserver.database.windows.net,1433%3bInitial Catalog=Optimizer_db%3bUser ID=rodrickVlankford%3bPassword=Lankford1!</Value>
-    </EFMigrations>
+    <AzureDBConnectionStrings Include="Data Source=optimizerdbserver.database.windows.net,1433;Initial Catalog=Optimizer_db;User ID=rodrickVLankford;Password=Fireboy12123!" />
+    <AzureDBConnectionStrings Include="Data Source=optimizerdbserver.database.windows.net,1433;Initial Catalog=Optimizer_db_Auth;User ID=rodrickVlankford;Password=Fireboy12123!" />
   </ItemGroup>
 </Project>

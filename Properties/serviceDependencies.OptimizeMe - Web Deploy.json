@@ -1,18 +1,20 @@
 {
   "dependencies": {
-    "mssql1": {
-      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/OptimizeMe/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsAzureTaskOptimizerDbCon_BF513E3415",
-      "secretStore": "AzureAppSettings",
-      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/optimizerdbserver/databases/Optimizer_db",
-      "type": "mssql.azure",
-      "connectionId": "ConnectionStrings:AzureTaskOptimizerDbConnectionString"
-    },
     "mssql2": {
       "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/OptimizeMe/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsAzureTaskOptimizerAuthC_3507658501",
       "secretStore": "AzureAppSettings",
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/optimizerdbserver/databases/Optimizer_db_Auth",
       "type": "mssql.azure",
-      "connectionId": "ConnectionStrings:AzureTaskOptimizerAuthConnectionString"
+      "connectionId": "ConnectionStrings:AzureTaskOptimizerAuthConnectionString",
+      "dynamicId": null
+    },
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/OptimizeMe/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsAzureTaskOptimizerDbCon_BF513E3415",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/optimizerdbserver/databases/Optimizer_db_Auth",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:AzureTaskOptimizerDbConnectionString",
+      "dynamicId": null
     }
   }
 }

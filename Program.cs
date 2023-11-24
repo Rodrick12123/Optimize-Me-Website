@@ -10,18 +10,34 @@ using Optimizer.Repositories.Applications;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+//inject dbcontext based off of the app enviroment
+IWebHostEnvironment enviroment = builder.Environment;
+if (enviroment.IsDevelopment())
+{
+    builder.Services.AddDbContext<TaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TaskContext")));
+    // Add services to the container.
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-//builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+}else if (enviroment.IsProduction())
+{
+    builder.Services.AddDbContext<TaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("AzureTaskOptimizerDbConnectionString")));
+    // Add services to the container.
+    var connectionString = builder.Configuration.GetConnectionString("AzureTaskOptimizerAuthConnectionString") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}else
+{
+    builder.Services.AddDbContext<TaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TaskContext")));
+    // Add services to the container.
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
-
-builder.Services.AddDbContext<TaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TaskContext")));
 
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskCategoryRepository, TaskCategoryRepository>();

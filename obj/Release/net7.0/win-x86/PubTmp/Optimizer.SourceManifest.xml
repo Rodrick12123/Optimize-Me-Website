@@ -1,6 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <sitemanifest>
   <IisApp path="C:\Users\rodri\Optimizer\obj\Release\net7.0\win-x86\PubTmp\Out\" />
-  <dbfullsql path="C:\Users\rodri\Optimizer\obj\Release\net7.0\win-x86\PubTmp\EFSQLScripts\Optimizer.Data.ApplicationDbContext.sql" />
-  <dbfullsql path="C:\Users\rodri\Optimizer\obj\Release\net7.0\win-x86\PubTmp\EFSQLScripts\Optimizer.Models.TaskContext.sql" />
 </sitemanifest>

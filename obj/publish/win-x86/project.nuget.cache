@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "KJZKE7E2kEpsQ08YCTIdMWxSB5uf09ghju9Pbu5ORiNwp9p7FsmWS+OB6iWQX2j6ycKbPWjX97Md/0/ExeZ6EA==",
+  "dgSpecHash": "k7w/Z3WOEkyVkpAle2Oztbl8J1Lr0JkeMtLPhCTTtak7h4JdcEmJZf3hat8bukTW+l7C+vEOz02Qltemt7XBjQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\rodri\\Optimizer\\Optimizer.csproj",
   "expectedPackageFiles": [
@@ -284,10 +284,7 @@
     "C:\\Users\\rodri\\.nuget\\packages\\system.threading.timer\\4.3.0\\system.threading.timer.4.3.0.nupkg.sha512",
     "C:\\Users\\rodri\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512",
     "C:\\Users\\rodri\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
-    "C:\\Users\\rodri\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
-    "C:\\Users\\rodri\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\7.0.12\\microsoft.netcore.app.runtime.win-x86.7.0.12.nupkg.sha512",
-    "C:\\Users\\rodri\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\7.0.12\\microsoft.windowsdesktop.app.runtime.win-x86.7.0.12.nupkg.sha512",
-    "C:\\Users\\rodri\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\7.0.12\\microsoft.aspnetcore.app.runtime.win-x86.7.0.12.nupkg.sha512"
+    "C:\\Users\\rodri\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512"
   ],
   "logs": []
 }

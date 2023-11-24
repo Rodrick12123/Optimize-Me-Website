@@ -1,12 +1,19 @@
 {
   "dependencies": {
-    "mssql1": {
+    "mssql3": {
+      "ignored": "true",
       "type": "mssql",
-      "connectionId": "ConnectionStrings:AzureTaskOptimizerDbConnectionString"
+      "connectionId": "ConnectionStrings:DefaultConnection"
     },
     "mssql2": {
       "type": "mssql",
-      "connectionId": "ConnectionStrings:AzureTaskOptimizerAuthConnectionString"
+      "connectionId": "ConnectionStrings:AzureTaskOptimizerAuthConnectionString",
+      "dynamicId": null
+    },
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:AzureTaskOptimizerDbConnectionString",
+      "dynamicId": null
     }
   }
 }
